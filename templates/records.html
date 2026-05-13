@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Attendance Dashboard</title>
+
+    <!-- Chart.js -->
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body{
+
+            background:#f4f6f9;
+            transition:0.3s;
+        }
+
+        /* Navbar */
+
+        .navbar{
+
+            background:#111827;
+            color:white;
+            padding:20px;
+            text-align:center;
+            font-size:28px;
+            font-weight:bold;
+            letter-spacing:1px;
+        }
+
+        /* Main Container */
+
+        .container{
+
+            width:90%;
+            margin:auto;
+            margin-top:40px;
+        }
+
+        /* Heading */
+
+        h1{
+
+            text-align:center;
+            color:#111827;
+            margin-bottom:25px;
+        }
+
+        /* Dark Mode Button */
+
+        .toggle-container{
+
+            text-align:center;
+            margin-top:20px;
+        }
+
+        /* Analytics Cards */
+
+        .analytics{
+
+            display:flex;
+            justify-content:center;
+            gap:25px;
+            margin-bottom:35px;
+            flex-wrap:wrap;
+        }
+
+        .card{
+
+            width:250px;
+            background:white;
+            padding:25px;
+            border-radius:15px;
+            text-align:center;
+            box-shadow:0 0 20px rgba(0,0,0,0.1);
+            transition:0.3s;
+        }
+
+        .card h2{
+
+            color:#5d7bba;
+            font-size:40px;
+            margin-bottom:10px;
+        }
+
+        .card p{
+
+            color:gray;
+            font-size:18px;
+        }
+
+        /* Chart */
+
+        .chart-container{
+
+            width:80%;
+            margin:auto;
+            margin-bottom:40px;
+            background:white;
+            padding:25px;
+            border-radius:15px;
+            box-shadow:0 0 20px rgba(0,0,0,0.1);
+        }
+
+        /* Filters */
+
+        .filters{
+
+            display:flex;
+            justify-content:center;
+            gap:20px;
+            margin-bottom:30px;
+            flex-wrap:wrap;
+        }
+
+        .search-box{
+
+            display:flex;
+        }
+
+        .search-box input{
+
+            width:320px;
+            padding:12px;
+            border:1px solid #ccc;
+            border-radius:8px 0 0 8px;
+            font-size:16px;
+        }
+
+        .search-box button{
+
+            padding:12px 20px;
+            border:none;
+            background:#5171b0;
+            color:white;
+            font-size:16px;
+            border-radius:0 8px 8px 0;
+            cursor:pointer;
+        }
+
+        .search-box button:hover{
+
+            background:#243256;
+        }
+
+        /* Tables */
+
+        table{
+
+            width:100%;
+            border-collapse:collapse;
+            background:white;
+            border-radius:10px;
+            overflow:hidden;
+            box-shadow:0 0 20px rgba(0,0,0,0.1);
+            margin-bottom:40px;
+        }
+
+        th{
+
+            background:#6687ce;
+            color:white;
+            padding:16px;
+            font-size:18px;
+        }
+
+        td{
+
+            padding:14px;
+            text-align:center;
+            border-bottom:1px solid #ddd;
+        }
+
+        tr:hover{
+
+            background:#f1f5f9;
+        }
+
+        /* Buttons */
+
+        .button-container{
+
+            text-align:center;
+            margin-top:25px;
+        }
+
+        .btn{
+
+            display:inline-block;
+            padding:12px 25px;
+            margin:10px;
+            border-radius:10px;
+            text-decoration:none;
+            color:white;
+            font-size:16px;
+            border:none;
+            cursor:pointer;
+            transition:0.3s;
+        }
+
+        .download-btn{
+
+            background:#2b3344;
+        }
+
+        .home-btn{
+
+            background:#111827;
+        }
+
+        .btn:hover{
+
+            opacity:0.9;
+            transform:scale(1.03);
+        }
+
+        /* Footer */
+
+        .footer{
+
+            text-align:center;
+            margin-top:30px;
+            color:gray;
+            font-size:14px;
+            margin-bottom:20px;
+        }
+
+        /* ---------------- DARK MODE ---------------- */
+
+        .dark-mode{
+
+            background:#111827;
+            color:white;
+        }
+
+        .dark-mode h1{
+
+            color:white;
+        }
+
+        .dark-mode .navbar{
+
+            background:#000;
+        }
+
+        .dark-mode .card{
+
+            background:#1f2937;
+            color:white;
+        }
+
+        .dark-mode .card p{
+
+            color:#d1d5db;
+        }
+
+        .dark-mode table{
+
+            background:#1f2937;
+            color:white;
+        }
+
+        .dark-mode td{
+
+            border-bottom:1px solid #374151;
+        }
+
+        .dark-mode tr:hover{
+
+            background:#374151;
+        }
+
+        .dark-mode .chart-container{
+
+            background:#1f2937;
+        }
+
+        .dark-mode input{
+
+            background:#374151;
+            color:white;
+            border:none;
+        }
+
+        .dark-mode .footer{
+
+            color:#d1d5db;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <!-- Navbar -->
+
+    <div class="navbar">
+
+        FaceTrack Attendance Dashboard
+
+    </div>
+
+    <!-- Dark Mode Toggle -->
+
+    <div class="toggle-container">
+
+        <button onclick="toggleDarkMode()"
+                class="btn home-btn">
+
+            🌙 Toggle Dark Mode
+
+        </button>
+
+    </div>
+
+    <!-- Main Container -->
+
+    <div class="container">
+
+        <h1>Attendance Analytics</h1>
+
+        <!-- Analytics Cards -->
+
+        <div class="analytics">
+
+            <div class="card">
+
+                <h2>{{ total_present }}</h2>
+
+                <p>Total Attendance</p>
+
+            </div>
+
+            <div class="card">
+
+                <h2>{{ total_students }}</h2>
+
+                <p>Total Students</p>
+
+            </div>
+
+            <div class="card">
+
+                <h2>{{ total_departments }}</h2>
+
+                <p>Total Departments</p>
+
+            </div>
+
+        </div>
+
+        <!-- Attendance Chart -->
+
+        <div class="chart-container">
+
+            <canvas id="attendanceChart"></canvas>
+
+        </div>
+
+        <!-- Filters -->
+
+        <div class="filters">
+
+            <!-- Search -->
+
+            <form method="GET" action="/records">
+
+                <div class="search-box">
+
+                    <input
+                        type="text"
+                        name="search"
+                        placeholder="Search by Name, Department or Date"
+                    >
+
+                    <button type="submit">
+
+                        Search
+
+                    </button>
+
+                </div>
+
+            </form>
+
+            <!-- Date Filter -->
+
+            <form method="GET" action="/records">
+
+                <div class="search-box">
+
+                    <input
+                        type="date"
+                        name="date"
+                    >
+
+                    <button type="submit">
+
+                        Filter Date
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+        <!-- Attendance Percentage Table -->
+
+        <h1>
+
+            Student Attendance Percentage
+
+        </h1>
+
+        <table>
+
+            <tr>
+
+                <th>Student Name</th>
+
+                <th>Attendance Percentage</th>
+
+            </tr>
+
+            {% for student, percentage in attendance_percentage.items() %}
+
+            <tr>
+
+                <td>{{ student }}</td>
+
+                <td>{{ percentage }}%</td>
+
+            </tr>
+
+            {% endfor %}
+
+        </table>
+
+        <!-- Attendance Records Table -->
+
+        <h1>
+
+            Attendance Records
+
+        </h1>
+
+        <table>
+
+            <tr>
+
+                <th>Student Name</th>
+                <th>Department</th>
+                <th>Date</th>
+                <th>Time</th>
+
+            </tr>
+
+            {% for row in data %}
+
+            <tr>
+
+                {% for item in row %}
+
+                <td>{{ item }}</td>
+
+                {% endfor %}
+
+            </tr>
+
+            {% endfor %}
+
+        </table>
+
+        <!-- Buttons -->
+
+        <div class="button-container">
+
+            <!-- Download -->
+
+            <a href="/download"
+               class="btn download-btn">
+
+                Download Attendance
+
+            </a>
+
+            <!-- Dashboard -->
+
+            <a href="/dashboard"
+               class="btn home-btn">
+
+                Back to Dashboard
+
+            </a>
+
+        </div>
+
+        <!-- Footer -->
+
+        <div class="footer">
+
+            FaceTrack Smart Attendance System
+
+        </div>
+
+    </div>
+
+    <!-- Chart Script -->
+
+    <script>
+
+    const ctx = document.getElementById(
+        'attendanceChart'
+    );
+
+    new Chart(ctx, {
+
+        type: 'bar',
+
+        data: {
+
+            labels: {{ department_labels | tojson }},
+
+            datasets: [{
+
+                label: 'Attendance Count',
+
+                data: {{ department_values | tojson }},
+
+                borderWidth: 1
+
+            }]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            scales: {
+
+                y: {
+
+                    beginAtZero: true
+
+                }
+
+            }
+
+        }
+
+    });
+
+    // Dark Mode Toggle
+
+    function toggleDarkMode(){
+
+        document.body.classList.toggle(
+            "dark-mode"
+        );
+
+    }
+
+    </script>
+
+</body>
+
+</html>
